@@ -1,69 +1,31 @@
 data "aws_partition" "current" {}
 data "aws_caller_identity" "current" {}
+data "aws_iam_roles" "all" {}
 
 locals {
   name_prefix  = "${var.environment}-${var.project_name}"
   cluster_name = "${local.name_prefix}-eks"
   azs          = ["us-east-1a", "us-east-1b"]
+
+  cluster_role_name = [
+    for role in data.aws_iam_roles.all.names :
+    role
+    if strcontains(role, "LabEksClusterRole")
+  ][0]
+
+  node_role_name = [
+    for role in data.aws_iam_roles.all.names :
+    role
+    if strcontains(role, "LabEksNodeRole")
+  ][0]
 }
 
-################################################################################
-# IAM Roles (creados inline para portabilidad)
-################################################################################
-
-resource "aws_iam_role" "cluster" {
-  name = "${local.cluster_name}-cluster-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "eks.amazonaws.com"
-      }
-    }]
-  })
+data "aws_iam_role" "cluster" {
+  name = local.cluster_role_name
 }
 
-resource "aws_iam_role_policy_attachment" "cluster_policy" {
-  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonEKSClusterPolicy"
-  role       = aws_iam_role.cluster.name
-}
-
-resource "aws_iam_role" "node" {
-  name = "${local.cluster_name}-node-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "ec2.amazonaws.com"
-      }
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "node_worker" {
-  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-  role       = aws_iam_role.node.name
-}
-
-resource "aws_iam_role_policy_attachment" "node_cni" {
-  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonEKS_CNI_Policy"
-  role       = aws_iam_role.node.name
-}
-
-resource "aws_iam_role_policy_attachment" "node_registry" {
-  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-  role       = aws_iam_role.node.name
-}
-
-resource "aws_iam_role_policy_attachment" "node_cloudwatch" {
-  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/CloudWatchAgentServerPolicy"
-  role       = aws_iam_role.node.name
+data "aws_iam_role" "node" {
+  name = local.node_role_name
 }
 
 ################################################################################
@@ -146,7 +108,7 @@ resource "aws_cloudwatch_log_group" "cluster" {
 
 resource "aws_eks_cluster" "this" {
   name     = local.cluster_name
-  role_arn = aws_iam_role.cluster.arn
+  role_arn = data.aws_iam_role.cluster.arn
   version  = var.kubernetes_version
 
   access_config {
@@ -175,7 +137,6 @@ resource "aws_eks_cluster" "this" {
   depends_on = [
     aws_cloudwatch_log_group.cluster,
     module.nat_instance,
-    aws_iam_role_policy_attachment.cluster_policy,
   ]
 }
 
@@ -183,17 +144,12 @@ resource "aws_eks_cluster" "this" {
 # Managed Node Group
 ################################################################################
 
-data "aws_ssm_parameter" "eks_ami_release_version" {
-  count = var.node_or_fargate == "nodes" ? 1 : 0
-  name  = "/aws/service/eks/optimized-ami/${var.kubernetes_version}/amazon-linux-2/recommended/release_version"
-}
-
 resource "aws_eks_node_group" "this" {
   count = var.node_or_fargate == "nodes" ? 1 : 0
 
   cluster_name    = aws_eks_cluster.this.name
   node_group_name = "${local.cluster_name}-nodes"
-  node_role_arn   = aws_iam_role.node.arn
+  node_role_arn   = data.aws_iam_role.node.arn
   subnet_ids      = module.vpc.private_subnets
   instance_types  = var.node_group_instance_types
   capacity_type   = var.node_group_capacity_type
@@ -331,32 +287,6 @@ resource "aws_eks_addon" "kubeproxy" {
   depends_on = [
     aws_eks_cluster.this,
     aws_eks_node_group.this,
-  ]
-}
-
-################################################################################
-# CloudWatch Observability Add-on
-# Despliega el agente de CloudWatch como DaemonSet para Container Insights.
-# Envia metricas de pods, nodos y contenedores a CloudWatch automaticamente.
-################################################################################
-
-data "aws_eks_addon_version" "cloudwatch_observability" {
-  addon_name         = "cloudwatch-observability"
-  kubernetes_version = aws_eks_cluster.this.version
-  most_recent        = true
-}
-
-resource "aws_eks_addon" "cloudwatch_observability" {
-  cluster_name                = aws_eks_cluster.this.name
-  addon_name                  = "cloudwatch-observability"
-  addon_version               = data.aws_eks_addon_version.cloudwatch_observability.version
-  resolve_conflicts_on_create = "OVERWRITE"
-  resolve_conflicts_on_update = "OVERWRITE"
-
-  depends_on = [
-    aws_eks_cluster.this,
-    aws_eks_node_group.this,
-    aws_iam_role_policy_attachment.node_cloudwatch,
   ]
 }
 

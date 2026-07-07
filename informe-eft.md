@@ -298,34 +298,43 @@ El **Metrics Server** add-on recolecta métricas de CPU/memoria cada 15 segundos
 
 ## 9. Monitoreo
 
-### 9.1 CloudWatch Container Insights
+### 9.1 CloudWatch Logs (Control Plane)
 
-Habilitado automáticamente via Terraform mediante el addon `cloudwatch-observability` de EKS, que despliega el agente de CloudWatch como DaemonSet en el cluster. Recolecta:
-- Métricas de CPU y memoria por pod y nodo
-- Métricas de red y disco
-- Logs de contenedores
-
-El addon utiliza la política `CloudWatchAgentServerPolicy` adjunta al rol IAM de los nodos para enviar métricas.
-
-### 9.2 CloudWatch Logs
-
-El control plane de EKS envía logs a CloudWatch:
+El control plane de EKS envía logs a CloudWatch automáticamente:
 - Log group: `/aws/eks/prod-tienda-perritos-eks/cluster`
 - Logs habilitados: `api`, `audit`, `authenticator`, `controllerManager`, `scheduler`
 - Retención: 7 días
 
-### 9.3 Dashboard CloudWatch
+### 9.2 Container Insights (Manual desde AWS Console)
 
-Creado y gestionado por Terraform en `monitoring.tf`. Incluye 6 widgets:
+Container Insights permite visualizar métricas de CPU, memoria, red y disco de pods y nodos. Se habilita desde la consola AWS:
 
-| Widget | Tipo | Métrica |
-|---|---|---|
-| **Pod CPU Utilization** | Serie temporal | `pod_cpu_utilization` promedio |
-| **Pod Memory Utilization** | Serie temporal | `pod_memory_utilization` promedio |
-| **Active Nodes** | Valor único | `node_count` promedio |
-| **Node CPU Utilization** | Serie temporal | `node_cpu_utilization` promedio |
-| **Node Memory Utilization** | Serie temporal | `node_memory_utilization` promedio |
-| **Control Plane Logs** | Tabla de logs | Logs en vivo del control plane |
+```
+EKS → Clúster → {cluster} → Insights → Container Insights → Enable
+```
+
+Alternativamente, mediante AWS CLI:
+
+```bash
+aws eks update-cluster-config \
+  --name prod-tienda-perritos-eks \
+  --logging '{"clusterLogging":[{"types":["api","audit","authenticator","controllerManager","scheduler"],"enabled":true}]}'
+```
+
+Una vez habilitado, se puede crear un Dashboard en CloudWatch con:
+
+| Widget | Métrica |
+|---|---|
+| **Pod CPU Utilization** | `pod_cpu_utilization` promedio |
+| **Pod Memory Utilization** | `pod_memory_utilization` promedio |
+| **Active Nodes** | `node_count` |
+| **Node CPU Utilization** | `node_cpu_utilization` promedio |
+| **Node Memory Utilization** | `node_memory_utilization` promedio |
+| **Control Plane Logs** | Logs en vivo del control plane |
+
+### 9.3 Logs del Pipeline (GitHub Actions)
+
+Cada ejecución del pipeline `deploy-app.yml` queda registrada en GitHub Actions con logs detallados de cada etapa (test, build, push, security scan, deploy), accesibles desde la pestaña Actions del repositorio.
 
 El dashboard es accesible desde la consola AWS via:
 ```
