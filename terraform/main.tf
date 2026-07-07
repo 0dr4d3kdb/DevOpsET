@@ -61,6 +61,11 @@ resource "aws_iam_role_policy_attachment" "node_registry" {
   role       = aws_iam_role.node.name
 }
 
+resource "aws_iam_role_policy_attachment" "node_cloudwatch" {
+  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/CloudWatchAgentServerPolicy"
+  role       = aws_iam_role.node.name
+}
+
 ################################################################################
 # VPC
 ################################################################################
@@ -326,6 +331,32 @@ resource "aws_eks_addon" "kubeproxy" {
   depends_on = [
     aws_eks_cluster.this,
     aws_eks_node_group.this,
+  ]
+}
+
+################################################################################
+# CloudWatch Observability Add-on
+# Despliega el agente de CloudWatch como DaemonSet para Container Insights.
+# Envia metricas de pods, nodos y contenedores a CloudWatch automaticamente.
+################################################################################
+
+data "aws_eks_addon_version" "cloudwatch_observability" {
+  addon_name         = "cloudwatch-observability"
+  kubernetes_version = aws_eks_cluster.this.version
+  most_recent        = true
+}
+
+resource "aws_eks_addon" "cloudwatch_observability" {
+  cluster_name                = aws_eks_cluster.this.name
+  addon_name                  = "cloudwatch-observability"
+  addon_version               = data.aws_eks_addon_version.cloudwatch_observability.version
+  resolve_conflicts_on_create = "OVERWRITE"
+  resolve_conflicts_on_update = "OVERWRITE"
+
+  depends_on = [
+    aws_eks_cluster.this,
+    aws_eks_node_group.this,
+    aws_iam_role_policy_attachment.node_cloudwatch,
   ]
 }
 

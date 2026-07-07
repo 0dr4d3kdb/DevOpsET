@@ -217,9 +217,9 @@ El módulo `terraform-aws-nat-instance` configura:
 Los roles IAM creados por Terraform siguen el principio de mínimo privilegio:
 
 | Rol | Políticas |
-|---|---|
+|---|---|---|
 | **EKS Cluster Role** | `AmazonEKSClusterPolicy` |
-| **EKS Node Role** | `AmazonEKSWorkerNodePolicy` + `AmazonEKS_CNI_Policy` + `AmazonEC2ContainerRegistryReadOnly` |
+| **EKS Node Role** | `AmazonEKSWorkerNodePolicy` + `AmazonEKS_CNI_Policy` + `AmazonEC2ContainerRegistryReadOnly` + `CloudWatchAgentServerPolicy` |
 
 ### 6.3 K8s Secrets
 
@@ -300,10 +300,12 @@ El **Metrics Server** add-on recolecta métricas de CPU/memoria cada 15 segundos
 
 ### 9.1 CloudWatch Container Insights
 
-Habilitado en el cluster EKS para recolectar:
+Habilitado automáticamente via Terraform mediante el addon `cloudwatch-observability` de EKS, que despliega el agente de CloudWatch como DaemonSet en el cluster. Recolecta:
 - Métricas de CPU y memoria por pod y nodo
+- Métricas de red y disco
 - Logs de contenedores
-- Métricas de red
+
+El addon utiliza la política `CloudWatchAgentServerPolicy` adjunta al rol IAM de los nodos para enviar métricas.
 
 ### 9.2 CloudWatch Logs
 
@@ -312,14 +314,23 @@ El control plane de EKS envía logs a CloudWatch:
 - Logs habilitados: `api`, `audit`, `authenticator`, `controllerManager`, `scheduler`
 - Retención: 7 días
 
-### 9.3 Dashboard Propuesto
+### 9.3 Dashboard CloudWatch
 
-Dashboard de CloudWatch con los siguientes widgets:
-1. **CPU Utilization by Pod** - gráfico de líneas con CPU promedio por deployment
-2. **Memory Utilization by Pod** - gráfico de líneas con memoria promedio por deployment
-3. **ALB Request Count** - número de requests al Load Balancer
-4. **Pod Status** - número de pods running/pending/failed
-5. **Node Group Status** - número de nodos activos
+Creado y gestionado por Terraform en `monitoring.tf`. Incluye 6 widgets:
+
+| Widget | Tipo | Métrica |
+|---|---|---|
+| **Pod CPU Utilization** | Serie temporal | `pod_cpu_utilization` promedio |
+| **Pod Memory Utilization** | Serie temporal | `pod_memory_utilization` promedio |
+| **Active Nodes** | Valor único | `node_count` promedio |
+| **Node CPU Utilization** | Serie temporal | `node_cpu_utilization` promedio |
+| **Node Memory Utilization** | Serie temporal | `node_memory_utilization` promedio |
+| **Control Plane Logs** | Tabla de logs | Logs en vivo del control plane |
+
+El dashboard es accesible desde la consola AWS via:
+```
+CloudWatch → Dashboards → {cluster_name}-dashboard
+```
 
 ---
 

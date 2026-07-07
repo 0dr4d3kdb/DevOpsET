@@ -32,3 +32,8 @@ output "public_subnet_ids" {
   description = "IDs of the public subnets."
   value       = module.vpc.public_subnets
 }
+
+output "cloudwatch_dashboard_url" {
+  description = "URL to access the CloudWatch Dashboard."
+  value       = "https://${var.aws_region}.console.aws.amazon.com/cloudwatch/home?region=${var.aws_region}#dashboards:name=${local.cluster_name}-dashboard"
+}
