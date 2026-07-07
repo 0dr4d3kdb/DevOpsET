@@ -17,7 +17,7 @@ env:
   ECR_REPO_BACKEND: ${{ vars.ECR_REPO_BACKEND }}
   ECR_REPO_DB: ${{ vars.ECR_REPO_DB }}
   EKS_NAMESPACE: tienda
-  IMAGE_TAG: "v${{ github.run_number }}-${{ github.sha::7 }}"
+  IMAGE_TAG: "v${{ github.run_number }}-${{ github.sha }}"
 
 jobs:
   test:
