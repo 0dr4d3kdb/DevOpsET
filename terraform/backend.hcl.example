@@ -1,0 +1,4 @@
+bucket  = "tienda-perritos-terraform-state"
+key     = "eks/terraform.tfstate"
+region  = "us-east-1"
+profile = "default"

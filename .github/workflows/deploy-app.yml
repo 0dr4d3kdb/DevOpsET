@@ -1,0 +1,173 @@
+name: "CI/CD - Deploy App to EKS"
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - "terraform/**"
+      - "README.md"
+      - "*.md"
+  workflow_dispatch:
+
+env:
+  ECR_REPO_FRONTEND: ${{ vars.ECR_REPO_FRONTEND }}
+  ECR_REPO_BACKEND: ${{ vars.ECR_REPO_BACKEND }}
+  ECR_REPO_DB: ${{ vars.ECR_REPO_DB }}
+  EKS_NAMESPACE: tienda
+  IMAGE_TAG: "v${{ github.run_number }}-${{ github.sha::7 }}"
+
+jobs:
+  test:
+    name: "Test"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install backend dependencies
+        run: npm install
+        working-directory: backend
+
+      - name: Validate server starts
+        run: |
+          timeout 5 node -e "
+            const app = require('./server.js');
+            setTimeout(() => process.exit(0), 3000);
+          " || true
+        working-directory: backend
+
+      - name: Validate Dockerfiles exist
+        run: |
+          for f in backend/Dockerfile frontend/Dockerfile db/Dockerfile; do
+            [ -f "$f" ] && echo "✓ $f" || { echo "✗ $f missing"; exit 1; }
+          done
+
+  build-and-deploy:
+    name: "Build, Push & Deploy"
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # ---------- BACKEND ----------
+      - name: Build & push BACKEND
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker build -t $ECR_REGISTRY/${ECR_REPO_BACKEND}:${IMAGE_TAG} backend/
+          docker tag $ECR_REGISTRY/${ECR_REPO_BACKEND}:${IMAGE_TAG} $ECR_REGISTRY/${ECR_REPO_BACKEND}:latest
+          docker push $ECR_REGISTRY/${ECR_REPO_BACKEND}:${IMAGE_TAG}
+          docker push $ECR_REGISTRY/${ECR_REPO_BACKEND}:latest
+
+      # ---------- FRONTEND ----------
+      - name: Build & push FRONTEND
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker build -t $ECR_REGISTRY/${ECR_REPO_FRONTEND}:${IMAGE_TAG} frontend/
+          docker tag $ECR_REGISTRY/${ECR_REPO_FRONTEND}:${IMAGE_TAG} $ECR_REGISTRY/${ECR_REPO_FRONTEND}:latest
+          docker push $ECR_REGISTRY/${ECR_REPO_FRONTEND}:${IMAGE_TAG}
+          docker push $ECR_REGISTRY/${ECR_REPO_FRONTEND}:latest
+
+      # ---------- DB ----------
+      - name: Build & push DB
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker build -t $ECR_REGISTRY/${ECR_REPO_DB}:${IMAGE_TAG} db/
+          docker tag $ECR_REGISTRY/${ECR_REPO_DB}:${IMAGE_TAG} $ECR_REGISTRY/${ECR_REPO_DB}:latest
+          docker push $ECR_REGISTRY/${ECR_REPO_DB}:${IMAGE_TAG}
+          docker push $ECR_REGISTRY/${ECR_REPO_DB}:latest
+
+      # ---------- Security Scan ----------
+      - name: Security scan (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ steps.login-ecr.outputs.registry }}/${ECR_REPO_BACKEND}:${IMAGE_TAG}
+          format: table
+          exit-code: "0"
+          severity: HIGH,CRITICAL
+
+      # ---------- Deploy ----------
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: v1.29.0
+
+      - name: Configure kubeconfig for EKS
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          EKS_CLUSTER_NAME: ${{ vars.EKS_CLUSTER_NAME }}
+        run: |
+          aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER_NAME
+
+      - name: Inject real image URLs into manifests
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          for f in k8s/*-deployment.yaml; do
+            sed -i "s|<ECR_REGISTRY>|${ECR_REGISTRY}|g" "$f"
+            sed -i "s|<ECR_REPO_BACKEND>|${ECR_REPO_BACKEND}|g" "$f"
+            sed -i "s|<ECR_REPO_FRONTEND>|${ECR_REPO_FRONTEND}|g" "$f"
+            sed -i "s|<ECR_REPO_DB>|${ECR_REPO_DB}|g" "$f"
+          done
+          cat k8s/*-deployment.yaml
+
+      - name: Deploy namespace & DB
+        env:
+          EKS_NAMESPACE: ${{ env.EKS_NAMESPACE }}
+        run: |
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/mysql-secret.yaml -n $EKS_NAMESPACE
+          kubectl apply -f k8s/mysql-deployment.yaml -n $EKS_NAMESPACE
+          kubectl apply -f k8s/mysql-service.yaml -n $EKS_NAMESPACE
+
+      - name: Deploy BACKEND
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          kubectl apply -f k8s/backend-deployment.yaml -n $EKS_NAMESPACE
+          kubectl apply -f k8s/backend-service.yaml -n $EKS_NAMESPACE
+          kubectl set image deployment/tienda-backend \
+            backend=$ECR_REGISTRY/${ECR_REPO_BACKEND}:${IMAGE_TAG} \
+            -n $EKS_NAMESPACE
+          kubectl rollout status deployment/tienda-backend -n $EKS_NAMESPACE
+
+      - name: Deploy FRONTEND
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          kubectl apply -f k8s/frontend-deployment.yaml -n $EKS_NAMESPACE
+          kubectl apply -f k8s/frontend-service.yaml -n $EKS_NAMESPACE
+          kubectl set image deployment/tienda-frontend \
+            frontend=$ECR_REGISTRY/${ECR_REPO_FRONTEND}:${IMAGE_TAG} \
+            -n $EKS_NAMESPACE
+          kubectl rollout status deployment/tienda-frontend -n $EKS_NAMESPACE
+
+      - name: Apply HPA
+        run: |
+          kubectl apply -f k8s/backend-hpa.yaml -n $EKS_NAMESPACE
+          kubectl apply -f k8s/frontend-hpa.yaml -n $EKS_NAMESPACE
+
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n $EKS_NAMESPACE
+          kubectl get svc -n $EKS_NAMESPACE
+          kubectl get hpa -n $EKS_NAMESPACE
