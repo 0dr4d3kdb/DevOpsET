@@ -3,10 +3,13 @@ name: "CI/CD - Deploy App to EKS"
 on:
   push:
     branches: [ main ]
-    paths-ignore:
-      - "terraform/**"
-      - "README.md"
-      - "*.md"
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "db/**"
+      - "k8s/**"
+      - ".github/workflows/deploy-app.yml"
+      - "docker-compose.yml"
   workflow_dispatch:
 
 env:
