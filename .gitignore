@@ -1,0 +1,29 @@
+# --- Terraform ---
+terraform/.terraform/
+terraform/*.tfplan
+terraform/*.tfstate*
+terraform/*.tfstate.*.backup
+terraform/crash.log
+terraform/override.tf
+terraform/override.tf.json
+terraform/terraform.rc
+
+# --- Node.js ---
+backend/node_modules/
+frontend/node_modules/
+npm-debug.log*
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+*.~
+
+# --- Docker ---
+.env
+*.env
