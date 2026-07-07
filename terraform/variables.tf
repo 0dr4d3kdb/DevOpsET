@@ -11,6 +11,7 @@ variable "project_name" {
 variable "owner_name" {
   description = "Owner name applied to resources through default provider tags."
   type        = string
+  default     = "Estudiante"
 }
 
 variable "aws_region" {
@@ -32,7 +33,7 @@ variable "vpc_cidr" {
 variable "kubernetes_version" {
   description = "Kubernetes version for the EKS cluster."
   type        = string
-  default     = "1.31"
+  default     = "1.35"
 }
 
 variable "node_or_fargate" {

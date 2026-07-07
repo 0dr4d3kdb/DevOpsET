@@ -8,16 +8,6 @@ on:
   workflow_dispatch:
 
 env:
-  TF_VAR_environment: ${{ vars.ENVIRONMENT }}
-  TF_VAR_project_name: ${{ vars.PROJECT_NAME }}
-  TF_VAR_owner_name: ${{ vars.OWNER_NAME }}
-  TF_VAR_aws_region: ${{ vars.AWS_REGION }}
-  TF_VAR_vpc_cidr: ${{ vars.VPC_CIDR }}
-  TF_VAR_kubernetes_version: ${{ vars.KUBERNETES_VERSION }}
-  TF_VAR_node_or_fargate: ${{ vars.NODE_OR_FARGATE }}
-  TF_VAR_node_group_instance_types: ${{ vars.NODE_GROUP_INSTANCE_TYPES }}
-  TF_VAR_node_group_capacity_type: ${{ vars.NODE_GROUP_CAPACITY_TYPE }}
-  TF_VAR_apps_repository: ${{ vars.APPS_REPOSITORY }}
   TF_VAR_aws_profile: ""
 
 jobs:
