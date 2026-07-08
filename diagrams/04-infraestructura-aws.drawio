@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-07-07T02:30:00.000Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" version="24.2.5" type="device">
+  <diagram name="4 - Infraestructura AWS" id="page4">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1050" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="t4" value="Diagrama 4: Infraestructura AWS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=16;fontStyle=1;color=#1F3A5F;" vertex="1" parent="1">
+          <mxGeometry x="400" y="10" width="600" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Internet -->
+        <mxCell id="internet" value="Internet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;fontColor=#333333;align=center;verticalAlign=middle;shadow=0;strokeColor=#B0BEC5;" vertex="1" parent="1">
+          <mxGeometry x="550" y="60" width="180" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow Internet -> IGW -->
+        <mxCell id="i_igw" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="internet" target="igw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Internet Gateway -->
+        <mxCell id="igw" value="Internet Gateway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9900;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#E67E00;" vertex="1" parent="1">
+          <mxGeometry x="565" y="130" width="150" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow IGW -> VPC -->
+        <mxCell id="igw_vpc" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="igw" target="vpc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============ VPC CONTAINER ============ -->
+        <mxCell id="vpc" value="&lt;b&gt;VPC 10.0.0.0/16&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:9px'&gt;DNS resolution + hostnames enabled&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#FF9900;strokeWidth=3;fillColor=#FFF8F0;fontColor=#FF9900;align=center;verticalAlign=top;fontSize=14;container=1;collapsible=0;childLayout=stackLayout;horizontalStack=0;resizeParent=1;resizeLast=0;" vertex="1" parent="1">
+          <mxGeometry x="120" y="190" width="1060" height="560" as="geometry" />
+        </mxCell>
+
+        <!-- ===== PUBLIC SUBNET ===== -->
+        <mxCell id="pub_subnet" value="&lt;b&gt;Public Subnet 10.0.1.0/24&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#4CAF50;strokeWidth=2;fillColor=#E8F5E9;fontColor=#2E7D32;align=center;verticalAlign=top;fontSize=12;container=1;collapsible=0;childLayout=stackLayout;horizontalStack=0;resizeParent=1;resizeLast=0;" vertex="1" parent="vpc">
+          <mxGeometry x="35" y="60" width="460" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- NAT Instance -->
+        <mxCell id="nat_instance" value="&lt;b&gt;NAT Instance&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:9px'&gt;t3.micro · Amazon Linux 2&lt;br&gt;Elastic IP · iptables MASQUERADE&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E87D00;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#C46900;" vertex="1" parent="pub_subnet">
+          <mxGeometry x="35" y="40" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- SG NAT -->
+        <mxCell id="sg_nat" value="&lt;b&gt;SG NAT Instance&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:8px'&gt;Inbound: TCP/UDP/ICMP&lt;br&gt;desde 10.0.0.0/16&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;fontColor=#E65100;align=center;verticalAlign=middle;shadow=0;strokeColor=#FFCC80;" vertex="1" parent="pub_subnet">
+          <mxGeometry x="280" y="40" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow IGW -> NAT -->
+        <mxCell id="igw_nat" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;strokeColor=#FF9900;dashed=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="vpc" source="pub_subnet" target="igw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== PRIVATE SUBNET A ===== -->
+        <mxCell id="priv_subnet_a" value="&lt;b&gt;Private Subnet A — us-east-1a (10.0.2.0/24)&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#2196F3;strokeWidth=2;fillColor=#E3F2FD;fontColor=#1565C0;align=center;verticalAlign=top;fontSize=12;container=1;collapsible=0;childLayout=stackLayout;horizontalStack=0;resizeParent=1;resizeLast=0;" vertex="1" parent="vpc">
+          <mxGeometry x="35" y="220" width="460" height="310" as="geometry" />
+        </mxCell>
+
+        <!-- EKS Cluster A -->
+        <mxCell id="eks_a" value="&lt;b&gt;EKS Cluster — prod-tienda-perritos-eks&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#FF9900;strokeWidth=2;fillColor=#FFF0E0;fontColor=#E65100;align=center;verticalAlign=top;fontSize=11;container=1;collapsible=0;childLayout=stackLayout;horizontalStack=0;resizeParent=1;resizeLast=0;" vertex="1" parent="priv_subnet_a">
+          <mxGeometry x="25" y="45" width="410" height="240" as="geometry" />
+        </mxCell>
+
+        <!-- Node Group A -->
+        <mxCell id="node_a" value="&lt;b&gt;Node Group&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:8px'&gt;t3.medium, ON_DEMAND&lt;br&gt;Min:1 Max:5&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#232F3E;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#1A2533;" vertex="1" parent="eks_a">
+          <mxGeometry x="20" y="50" width="130" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Frontend Pod A -->
+        <mxCell id="front_a" value="&lt;b&gt;Frontend&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:8px'&gt;nginx:alpine&lt;br&gt;Puerto 80&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#37474F;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#263238;" vertex="1" parent="eks_a">
+          <mxGeometry x="195" y="50" width="80" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Backend Pod A -->
+        <mxCell id="back_a" value="&lt;b&gt;Backend&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:8px'&gt;Node.js&lt;br&gt;Puerto 3001&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#37474F;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#263238;" vertex="1" parent="eks_a">
+          <mxGeometry x="290" y="50" width="80" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow Front A -> Back A -->
+        <mxCell id="fa_ba" value="&lt;i&gt;/api/&lt;/i&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;strokeColor=#666666;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="eks_a" source="front_a" target="back_a">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- MySQL Pod A -->
+        <mxCell id="mysql_a" value="&lt;b&gt;MySQL&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:8px'&gt;MySQL 8&lt;br&gt;Puerto 3306&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#37474F;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#263238;" vertex="1" parent="eks_a">
+          <mxGeometry x="195" y="140" width="80" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow Back A -> MySQL A -->
+        <mxCell id="ba_ma" value="&lt;i&gt;mysql2&lt;/i&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;strokeColor=#666666;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="eks_a" source="back_a" target="mysql_a">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== PRIVATE SUBNET B ===== -->
+        <mxCell id="priv_subnet_b" value="&lt;b&gt;Private Subnet B — us-east-1b (10.0.3.0/24)&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#2196F3;strokeWidth=2;fillColor=#E3F2FD;fontColor=#1565C0;align=center;verticalAlign=top;fontSize=12;container=1;collapsible=0;childLayout=stackLayout;horizontalStack=0;resizeParent=1;resizeLast=0;" vertex="1" parent="vpc">
+          <mxGeometry x="555" y="220" width="460" height="310" as="geometry" />
+        </mxCell>
+
+        <!-- EKS Cluster B -->
+        <mxCell id="eks_b" value="&lt;b&gt;EKS Cluster — prod-tienda-perritos-eks&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#FF9900;strokeWidth=2;fillColor=#FFF0E0;fontColor=#E65100;align=center;verticalAlign=top;fontSize=11;container=1;collapsible=0;childLayout=stackLayout;horizontalStack=0;resizeParent=1;resizeLast=0;" vertex="1" parent="priv_subnet_b">
+          <mxGeometry x="25" y="45" width="410" height="240" as="geometry" />
+        </mxCell>
+
+        <!-- Node Group B -->
+        <mxCell id="node_b" value="&lt;b&gt;Node Group&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:8px'&gt;t3.medium, ON_DEMAND&lt;br&gt;Min:1 Max:5&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#232F3E;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#1A2533;" vertex="1" parent="eks_b">
+          <mxGeometry x="20" y="50" width="130" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Frontend Pod B -->
+        <mxCell id="front_b" value="&lt;b&gt;Frontend&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:8px'&gt;nginx:alpine&lt;br&gt;Puerto 80&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#37474F;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#263238;" vertex="1" parent="eks_b">
+          <mxGeometry x="195" y="50" width="80" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Backend Pod B -->
+        <mxCell id="back_b" value="&lt;b&gt;Backend&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:8px'&gt;Node.js&lt;br&gt;Puerto 3001&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#37474F;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#263238;" vertex="1" parent="eks_b">
+          <mxGeometry x="290" y="50" width="80" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow Front B -> Back B -->
+        <mxCell id="fb_bb" value="&lt;i&gt;/api/&lt;/i&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;strokeColor=#666666;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="eks_b" source="front_b" target="back_b">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- MySQL Pod B -->
+        <mxCell id="mysql_b" value="&lt;b&gt;MySQL&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:8px'&gt;MySQL 8&lt;br&gt;Puerto 3306&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#37474F;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#263238;" vertex="1" parent="eks_b">
+          <mxGeometry x="195" y="140" width="80" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow Back B -> MySQL B -->
+        <mxCell id="bb_mb" value="&lt;i&gt;mysql2&lt;/i&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;strokeColor=#666666;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="eks_b" source="back_b" target="mysql_b">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow NAT -> EKS (tráfico saliente) -->
+        <mxCell id="nat_eks" value="&lt;i&gt;Tráfico saliente&lt;/i&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;strokeColor=#FF9900;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="vpc" source="nat_instance" target="eks_a">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== SERVICIOS AWS ===== -->
+        <mxCell id="s3_bucket" value="&lt;b&gt;S3 Bucket&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:9px'&gt;Terraform remote state&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9900;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#E67E00;" vertex="1" parent="vpc">
+          <mxGeometry x="35" y="560" width="200" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cw_logs" value="&lt;b&gt;CloudWatch Logs&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:9px'&gt;Control plane (7 días)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9900;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#E67E00;" vertex="1" parent="vpc">
+          <mxGeometry x="265" y="560" width="200" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ecr_svc" value="&lt;b&gt;Amazon ECR&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:9px'&gt;frontend / backend / db&lt;/font&gt;" style="shape=cylinder;whiteSpace=wrap;html=1;fillColor=#FF9900;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#E67E00;boundedLbl=1;" vertex="1" parent="vpc">
+          <mxGeometry x="680" y="560" width="200" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- ===== LEYENDA ===== -->
+        <mxCell id="legend" value="&lt;b&gt;Leyenda&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;br&gt;&lt;font style='font-size:10px'&gt;🟢 Public Subnet&lt;br&gt;🔵 Private Subnet&lt;br&gt;🟠 AWS Service / VPC&lt;br&gt;⚫ Pod / Node&lt;br&gt;&lt;br&gt;→= flujo de tráfico&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FAFAFA;fontColor=#333333;align=left;verticalAlign=top;shadow=0;strokeColor=#CCCCCC;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="770" width="160" height="160" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-07-07T02:20:00.000Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" version="24.2.5" type="device">
+  <diagram name="3 - Pipeline CI/CD" id="page3">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="t3" value="Diagrama 3: Pipeline CI/CD — GitHub Actions" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=16;fontStyle=1;color=#1F3A5F;" vertex="1" parent="1">
+          <mxGeometry x="350" y="10" width="600" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- === FILA 1: 9 ETAPAS === -->
+
+        <!-- 1: Push -->
+        <mxCell id="p1" value="&lt;b&gt;① Push&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#333333;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#222222;" vertex="1" parent="1">
+          <mxGeometry x="30" y="80" width="100" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="pa1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="p1" target="p2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 2: Checkout -->
+        <mxCell id="p2" value="&lt;b&gt;② Checkout&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#555555;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#444444;" vertex="1" parent="1">
+          <mxGeometry x="160" y="80" width="100" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="pa2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="p2" target="p3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 3: Tests -->
+        <mxCell id="p3" value="&lt;b&gt;③ Tests&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:8px'&gt;Node.js 18 / npm install / validar server&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B813E;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#146B2E;" vertex="1" parent="1">
+          <mxGeometry x="290" y="80" width="110" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="pa3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="p3" target="p4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 4: Docker Build -->
+        <mxCell id="p4" value="&lt;b&gt;④ Docker Build&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:8px'&gt;frontend+backend+db / multi-stage&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2496ED;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#1A7AD8;" vertex="1" parent="1">
+          <mxGeometry x="430" y="80" width="120" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="pa4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="p4" target="p5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 5: Trivy Scan -->
+        <mxCell id="p5" value="&lt;b&gt;⑤ Trivy Scan&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:8px'&gt;HIGH/CRITICAL / exit-code:0&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E02000;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#B81A00;" vertex="1" parent="1">
+          <mxGeometry x="580" y="80" width="110" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="pa5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="p5" target="p6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 6: Push ECR -->
+        <mxCell id="p6" value="&lt;b&gt;⑥ Push ECR&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:8px'&gt;Tag: SHA+latest / Amazon ECR&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9900;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#E67E00;" vertex="1" parent="1">
+          <mxGeometry x="720" y="80" width="110" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="pa6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="p6" target="p7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 7: Deploy EKS -->
+        <mxCell id="p7" value="&lt;b&gt;⑦ Deploy EKS&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:8px'&gt;kubectl apply / set image / rollout status&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#326CE5;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#2554B3;" vertex="1" parent="1">
+          <mxGeometry x="860" y="80" width="110" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="pa7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="p7" target="p8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 8: Verify -->
+        <mxCell id="p8" value="&lt;b&gt;⑧ Verify&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:8px'&gt;kubectl get pods / svc / hpa&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#5277C7;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#3D5A9E;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="80" width="110" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="pa8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="p8" target="p9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 9: Success -->
+        <mxCell id="p9" value="&lt;b&gt;⑨ Success&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:8px'&gt;App desplegada / Pods Running&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B813E;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#146B2E;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="80" width="110" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- === FILA 2: TRIGGERS === -->
+        <mxCell id="triggers_label" value="Triggers:" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="170" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="triggers_box" value="&lt;font style='font-size:9px'&gt;push a main sobre: backend/* , frontend/* , db/* , k8s/* , .github/workflows/*  |  workflow_dispatch (ejecución manual)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;fontColor=#333333;align=center;verticalAlign=middle;shadow=0;strokeColor=#FFE082;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="160" width="750" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- === FILA 3: JOBS === -->
+
+        <!-- Job 1: test -->
+        <mxCell id="job1" value="&lt;b&gt;Job 1: test&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:8px'&gt;Checkout → Tests (Node.js 18, ubuntu-latest)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;fontColor=#1B813E;align=center;verticalAlign=middle;shadow=0;strokeColor=#1B813E;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="160" y="230" width="240" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Job 2: build-and-deploy -->
+        <mxCell id="job2" value="&lt;b&gt;Job 2: build-and-deploy (needs: test)&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:8px'&gt;Build → Scan → Push → Deploy → Verify&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;fontColor=#FF9900;align=center;verticalAlign=middle;shadow=0;strokeColor=#FF9900;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="430" y="230" width="820" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow job1 -> job2 -->
+        <mxCell id="joba" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;strokeColor=#666666;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="job1" target="job2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- === FILA 4: PIPELINE INFRA === -->
+        <mxCell id="infra_title" value="Pipeline de Infraestructura (deploy-infra.yml)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=11;fontStyle=1;color=#333333;" vertex="1" parent="1">
+          <mxGeometry x="30" y="340" width="350" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="infra1" value="init" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8E8E8;fontColor=#333333;align=center;verticalAlign=middle;shadow=0;strokeColor=#CCCCCC;" vertex="1" parent="1">
+          <mxGeometry x="280" y="360" width="75" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="infra_a1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="infra1" target="infra2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="infra2" value="validate" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8E8E8;fontColor=#333333;align=center;verticalAlign=middle;shadow=0;strokeColor=#CCCCCC;" vertex="1" parent="1">
+          <mxGeometry x="385" y="360" width="75" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="infra_a2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="infra2" target="infra3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="infra3" value="plan" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8E8E8;fontColor=#333333;align=center;verticalAlign=middle;shadow=0;strokeColor=#CCCCCC;" vertex="1" parent="1">
+          <mxGeometry x="490" y="360" width="75" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="infra_a3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="infra3" target="infra4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="infra4" value="apply" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9900;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#E67E00;" vertex="1" parent="1">
+          <mxGeometry x="595" y="360" width="75" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="infra_a4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="infra4" target="infra5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="infra5" value="outputs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8E8E8;fontColor=#333333;align=center;verticalAlign=middle;shadow=0;strokeColor=#CCCCCC;" vertex="1" parent="1">
+          <mxGeometry x="700" y="360" width="75" height="35" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

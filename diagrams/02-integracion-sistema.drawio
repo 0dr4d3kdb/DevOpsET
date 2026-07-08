@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-07-07T02:10:00.000Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" version="24.2.5" type="device">
+  <diagram name="2 - Integración del Sistema" id="page2">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1000" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="t2" value="Diagrama 2: Integración del Sistema — Three-Tier Architecture" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=16;fontStyle=1;color=#1F3A5F;" vertex="1" parent="1">
+          <mxGeometry x="200" y="10" width="600" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- === COLUMNA IZQUIERDA === -->
+
+        <!-- User -->
+        <mxCell id="d2_user" value="&lt;b&gt;Usuario&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:9px'&gt;Navegador Web&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#5277C7;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#3D5A9E;" vertex="1" parent="1">
+          <mxGeometry x="200" y="110" width="140" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow User -> Frontend -->
+        <mxCell id="d2_a1" value="HTTP :80" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="d2_user" target="d2_frontend">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Frontend (Nginx) -->
+        <mxCell id="d2_frontend" value="&lt;b&gt;Frontend (Nginx)&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:9px'&gt;Puerto 80 · Reverse proxy&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B813E;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#146B2E;" vertex="1" parent="1">
+          <mxGeometry x="180" y="210" width="180" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- default.conf box -->
+        <mxCell id="d2_nginx_conf" value="&lt;font style='font-size:8px'&gt;&lt;b&gt;default.conf&lt;/b&gt;&lt;br&gt;location /api/ {&lt;br&gt;  proxy_pass &lt;br&gt;  http://localhost:3001;&lt;br&gt;}&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F5F5F5;fontColor=#333333;align=center;verticalAlign=middle;shadow=0;strokeColor=#CCCCCC;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="210" width="120" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow Frontend -> Backend -->
+        <mxCell id="d2_a2" value="&lt;i&gt;proxy_pass /api/ :3001&lt;/i&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="d2_frontend" target="d2_backend">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Backend (Node.js) -->
+        <mxCell id="d2_backend" value="&lt;b&gt;Backend (Node.js+Express)&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:9px'&gt;Puerto 3001 · API RESTful&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#232F3E;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#1A2533;" vertex="1" parent="1">
+          <mxGeometry x="170" y="320" width="200" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- Endpoints API box -->
+        <mxCell id="d2_endpoints" value="&lt;font style='font-size:8px'&gt;&lt;b&gt;Endpoints API&lt;/b&gt;&lt;br&gt;GET /api/productos&lt;br&gt;GET /api/productos/:id&lt;br&gt;POST /api/productos&lt;br&gt;PUT /api/productos/:id&lt;br&gt;DELETE /api/productos/:id&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F5F5F5;fontColor=#333333;align=center;verticalAlign=middle;shadow=0;strokeColor=#CCCCCC;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="390" y="320" width="120" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow Backend -> MySQL -->
+        <mxCell id="d2_a3" value="&lt;i&gt;mysql2 query :3306&lt;/i&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="d2_backend" target="d2_mysql">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- MySQL (cylinder) -->
+        <mxCell id="d2_mysql" value="&lt;b&gt;MySQL 8&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:9px'&gt;Persistencia&lt;br&gt;Puerto 3306&lt;/font&gt;" style="shape=cylinder;whiteSpace=wrap;html=1;fillColor=#F5A623;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#D4891A;boundedLbl=1;" vertex="1" parent="1">
+          <mxGeometry x="230" y="430" width="80" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- Schema table box -->
+        <mxCell id="d2_schema" value="&lt;font style='font-size:8px'&gt;&lt;b&gt;tabla productos&lt;/b&gt;&lt;br&gt;id INT PK AUTO_INCREMENT&lt;br&gt;nombre VARCHAR(100)&lt;br&gt;descripcion TEXT&lt;br&gt;precio DECIMAL(10,2)&lt;br&gt;imagen VARCHAR(255)&lt;br&gt;created_at TIMESTAMP&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F5F5F5;fontColor=#333333;align=center;verticalAlign=middle;shadow=0;strokeColor=#CCCCCC;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="350" y="430" width="150" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- Three-Tier box -->
+        <mxCell id="d2_tier" value="&lt;b&gt;Arquitectura en 3 Capas (Three-Tier)&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:9px'&gt;Presentación → Lógica → Persistencia&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FBE9E7;fontColor=#333333;align=center;verticalAlign=middle;shadow=0;strokeColor=#FFAB91;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="100" y="540" width="400" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- === COLUMNA DERECHA (Justificaciones) === -->
+
+        <!-- Box 1 -->
+        <mxCell id="d2_j1" value="🔒 &lt;b&gt;Seguridad&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:9px'&gt;El frontend oculta la topología interna. Solo puerto 80 expuesto.&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;fontColor=#333333;align=center;verticalAlign=middle;shadow=0;strokeColor=#A5D6A7;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="590" y="110" width="340" height="75" as="geometry" />
+        </mxCell>
+
+        <!-- Box 2 -->
+        <mxCell id="d2_j2" value="📦 &lt;b&gt;Separación de Responsabilidades&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:9px'&gt;Cada capa independiente. Single Responsibility.&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;fontColor=#333333;align=center;verticalAlign=middle;shadow=0;strokeColor=#90CAF9;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="590" y="210" width="340" height="75" as="geometry" />
+        </mxCell>
+
+        <!-- Box 3 -->
+        <mxCell id="d2_j3" value="📈 &lt;b&gt;Escalabilidad&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:9px'&gt;Cada capa escala horizontalmente según demanda (HPA).&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;fontColor=#333333;align=center;verticalAlign=middle;shadow=0;strokeColor=#FFCC80;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="590" y="310" width="340" height="75" as="geometry" />
+        </mxCell>
+
+        <!-- Box 4 -->
+        <mxCell id="d2_j4" value="🔗 &lt;b&gt;Resolución de Nombres&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:9px'&gt;K8s: DNS interno. Docker Compose: red tienda-net.&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;fontColor=#333333;align=center;verticalAlign=middle;shadow=0;strokeColor=#CE93D8;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="590" y="410" width="340" height="75" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -5,6 +5,8 @@
 **Estudiante:** [Nombre]
 **Fecha:** Julio 2026
 
+**URL de la aplicación desplegada:** `http://a5ce6a12d48624311a4aa23b9523e046-1353646925.us-east-1.elb.amazonaws.com`
+
 ---
 
 ## 1. Integración del Sistema
@@ -76,7 +78,7 @@ Terraform crea 3 repositorios ECR privados:
 Cada build produce **dos tags**:
 | Tag | Propósito |
 |---|---|
-| `{sha}` (ej: `a1b2c3d`) | Trazabilidad directa al commit de GitHub |
+| `v{run_number}-{sha}` (ej: `v9-cc470c63e5af24a3a`) | Trazabilidad: número de ejecución + SHA completo del commit |
 | `latest` | Última versión disponible |
 
 El pipeline ejecuta:
@@ -214,12 +216,14 @@ El módulo `terraform-aws-nat-instance` configura:
 
 ### 6.2 Principio de Mínimo Privilegio (IAM)
 
-Los roles IAM creados por Terraform siguen el principio de mínimo privilegio:
+Los roles IAM son pre-existentes en la cuenta de laboratorio (no se crean desde Terraform por restricciones de permisos `iam:CreateRole`). Se referencian mediante `data sources` de Terraform:
 
-| Rol | Políticas |
+| Rol | Nombre Real | Políticas Adjuntas |
 |---|---|---|
-| **EKS Cluster Role** | `AmazonEKSClusterPolicy` |
-| **EKS Node Role** | `AmazonEKSWorkerNodePolicy` + `AmazonEKS_CNI_Policy` + `AmazonEC2ContainerRegistryReadOnly` + `CloudWatchAgentServerPolicy` |
+| **EKS Cluster Role** | `LabEksClusterRole-*` | `AmazonEKSClusterPolicy` |
+| **EKS Node Role** | `LabEksNodeRole-*` | `AmazonEKSWorkerNodePolicy` + `AmazonEKS_CNI_Policy` + `AmazonEC2ContainerRegistryReadOnly` |
+
+> **Nota:** No se adjuntó `CloudWatchAgentServerPolicy` porque `iam:AttachRolePolicy` está denegado en el entorno de laboratorio. Como consecuencia, Container Insights no pudo habilitarse (ver §9).
 
 ### 6.3 K8s Secrets
 
@@ -262,8 +266,9 @@ El backend accede a esta contraseña via `secretKeyRef` en el Deployment.
 ### 7.3 Security Groups
 
 Las reglas de los Security Groups son restrictivas:
-- **NAT Instance SG**: solo permite TCP/UDP/ICMP desde CIDRs de subnets privadas
-- **EKS Cluster SG**: gestionado automáticamente por EKS, solo tráfico necesario entre nodos y control plane
+- **NAT Instance SG**: solo permite TCP/UDP/ICMP desde CIDRs de subnets privadas (10.0.0.0/16). Puertos: todos los tráficos salientes habilitados, entrantes solo desde VPC.
+- **EKS Cluster SG**: gestionado automáticamente por EKS, permite tráfico entre nodos y control plane en los puertos necesarios (443, 10250, 53, etc.). No se exponen puertos SSH (22) en ningún recurso.
+- **Load Balancer SG**: el ALB expone únicamente el puerto 80 (HTTP) hacia Internet, y se comunica con los pods del frontend en el puerto 31222 (NodePort).
 
 ---
 
@@ -305,41 +310,28 @@ El control plane de EKS envía logs a CloudWatch automáticamente:
 - Logs habilitados: `api`, `audit`, `authenticator`, `controllerManager`, `scheduler`
 - Retención: 7 días
 
-### 9.2 Container Insights (Manual desde AWS Console)
+### 9.2 Container Insights (No disponible por restricciones IAM)
 
-Container Insights permite visualizar métricas de CPU, memoria, red y disco de pods y nodos. Se habilita desde la consola AWS:
+Container Insights permite visualizar métricas de CPU, memoria, red y disco de pods y nodos. Sin embargo, en este entorno de laboratorio **no fue posible habilitarlo** debido a las siguientes restricciones IAM:
 
-```
-EKS → Clúster → {cluster} → Insights → Container Insights → Enable
-```
+| Requisito | Problema |
+|---|---|
+| `iam:CreateRole` | Denegado — no se puede crear rol para el CloudWatch agent |
+| `iam:AttachRolePolicy` | Denegado — no se puede adjuntar `CloudWatchAgentServerPolicy` al rol de nodo |
+| OIDC Provider | No existe en la cuenta |
 
-Alternativamente, mediante AWS CLI:
+Como alternativa, se utiliza **Metrics Server** (instalado como add-on de EKS) para monitorear métricas de CPU/memoria desde kubectl:
 
 ```bash
-aws eks update-cluster-config \
-  --name prod-tienda-perritos-eks \
-  --logging '{"clusterLogging":[{"types":["api","audit","authenticator","controllerManager","scheduler"],"enabled":true}]}'
+kubectl top pods -n tienda
+kubectl top nodes
 ```
-
-Una vez habilitado, se puede crear un Dashboard en CloudWatch con:
-
-| Widget | Métrica |
-|---|---|
-| **Pod CPU Utilization** | `pod_cpu_utilization` promedio |
-| **Pod Memory Utilization** | `pod_memory_utilization` promedio |
-| **Active Nodes** | `node_count` |
-| **Node CPU Utilization** | `node_cpu_utilization` promedio |
-| **Node Memory Utilization** | `node_memory_utilization` promedio |
-| **Control Plane Logs** | Logs en vivo del control plane |
 
 ### 9.3 Logs del Pipeline (GitHub Actions)
 
 Cada ejecución del pipeline `deploy-app.yml` queda registrada en GitHub Actions con logs detallados de cada etapa (test, build, push, security scan, deploy), accesibles desde la pestaña Actions del repositorio.
 
-El dashboard es accesible desde la consola AWS via:
-```
-CloudWatch → Dashboards → {cluster_name}-dashboard
-```
+> **Nota:** No se implementó un dashboard de CloudWatch porque Container Insights no está disponible (ver §9.2). Las métricas se consultan via `kubectl top` y los logs del control plane se visualizan desde CloudWatch Logs.
 
 ---
 

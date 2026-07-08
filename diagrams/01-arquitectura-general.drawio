@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-07-07T02:00:00.000Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" version="24.2.5" type="device">
+  <diagram name="1 - Arquitectura General" id="page1">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="t1" value="Diagrama 1: Arquitectura General de la Solución" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=16;fontStyle=1;color=#1F3A5F;" vertex="1" parent="1">
+          <mxGeometry x="300" y="10" width="600" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- GitHub -->
+        <mxCell id="gh" value="GitHub&lt;br&gt;&lt;hr&gt;&lt;font style='font-size:9px'&gt;Repositorio&lt;br&gt;main branch&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#333333;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#222222;" vertex="1" parent="1">
+          <mxGeometry x="40" y="240" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow GitHub -> GitHub Actions -->
+        <mxCell id="a1" value="&lt;b&gt;push&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:9px'&gt;a main branch&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="gh" target="ga">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- GitHub Actions -->
+        <mxCell id="ga" value="GitHub Actions&lt;br&gt;&lt;hr&gt;&lt;font style='font-size:9px'&gt;CI/CD Pipeline&lt;br&gt;test → build → scan → deploy&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B813E;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#146B2E;" vertex="1" parent="1">
+          <mxGeometry x="270" y="235" width="150" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow GitHub Actions -> ECR -->
+        <mxCell id="a2" value="&lt;b&gt;Build &amp; Push&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:9px'&gt;docker push :tag&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ga" target="ecr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Amazon ECR (Cylinder) -->
+        <mxCell id="ecr" value="Amazon ECR&lt;br&gt;&lt;hr&gt;&lt;font style='font-size:9px'&gt;Registro Privado&lt;br&gt;frontend / backend / db&lt;/font&gt;" style="shape=cylinder;whiteSpace=wrap;html=1;fillColor=#FF9900;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#E67E00;boundedLbl=1;" vertex="1" parent="1">
+          <mxGeometry x="510" y="240" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow ECR -> Load Balancer -->
+        <mxCell id="a3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#FF9900;dashed=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="ecr" target="lb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Load Balancer -->
+        <mxCell id="lb" value="&lt;b&gt;Load Balancer&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:9px'&gt;AWS ALB&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9900;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#E67E00;" vertex="1" parent="1">
+          <mxGeometry x="620" y="75" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow LB -> EKS -->
+        <mxCell id="a4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#FF9900;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="lb" target="eks_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- EKS Container -->
+        <mxCell id="eks_container" value="&lt;b&gt;Amazon EKS — Kubernetes 1.31 · Namespace: tienda&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#FF9900;strokeWidth=3;fillColor=#FFF8F0;fontColor=#FF9900;align=center;verticalAlign=top;fontSize=12;container=1;collapsible=0;childLayout=stackLayout;horizontalStack=0;resizeParent=1;resizeLast=0;" vertex="1" parent="1">
+          <mxGeometry x="740" y="100" width="400" height="380" as="geometry" />
+        </mxCell>
+
+        <!-- Frontend Pod -->
+        <mxCell id="frontend_pod" value="Frontend&lt;br&gt;&lt;hr&gt;&lt;font style='font-size:9px'&gt;nginx:alpine&lt;br&gt;Puerto 80&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#232F3E;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#1A2533;" vertex="1" parent="eks_container">
+          <mxGeometry x="30" y="50" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Backend Pod -->
+        <mxCell id="backend_pod" value="Backend&lt;br&gt;&lt;hr&gt;&lt;font style='font-size:9px'&gt;Node.js+Express&lt;br&gt;Puerto 3001&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#232F3E;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#1A2533;" vertex="1" parent="eks_container">
+          <mxGeometry x="30" y="150" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- MySQL Pod -->
+        <mxCell id="mysql_pod" value="MySQL&lt;br&gt;&lt;hr&gt;&lt;font style='font-size:9px'&gt;Base de Datos&lt;br&gt;Puerto 3306&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#232F3E;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#1A2533;" vertex="1" parent="eks_container">
+          <mxGeometry x="30" y="250" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow Frontend -> Backend -->
+        <mxCell id="afb" value="&lt;i&gt;proxy_pass /api/&lt;/i&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#666666;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="eks_container" source="frontend_pod" target="backend_pod">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow Backend -> MySQL -->
+        <mxCell id="abm" value="&lt;i&gt;mysql2 query&lt;/i&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#666666;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="eks_container" source="backend_pod" target="mysql_pod">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow EKS -> User -->
+        <mxCell id="a5" value="&lt;b&gt;HTTP :80&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="eks_container" target="user">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- User -->
+        <mxCell id="user" value="Usuario&lt;br&gt;&lt;hr&gt;&lt;font style='font-size:9px'&gt;Navegador Web&lt;br&gt;Acceso a la tienda&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#5277C7;fontColor=#FFFFFF;align=center;verticalAlign=middle;shadow=1;strokeColor=#3D5A9E;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="240" width="140" height="70" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
